@@ -33,7 +33,7 @@ class StationItem extends StatelessWidget {
                 ),
                 const SizedBox(height: 4.0),
                 Text(
-                  station.genre.join(','),
+                  station.genre.join(', '),
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 12.0,
