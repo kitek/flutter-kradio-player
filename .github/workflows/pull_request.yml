@@ -1,0 +1,27 @@
+name: Run tests and lint on pull requests
+on:
+  pull_request:
+    branches: [ develop ]
+
+jobs:
+  lint:
+    name: Check code style
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+      - name: Install Flutter
+        uses: subosito/flutter-action@v1
+        with:
+          channel: 'stable'
+      - name: Disable Flutter SDK anonymously reports
+        run: flutter config --no-analytics
+      - name: Get packages in a Flutter project
+        run: flutter pub get
+      - name: Run lint
+        uses: kitek/dartanalyzer-annotations-action@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          check_name: 'Check code style'
+          commit_sha: ${{ github.event.pull_request.head.sha }}
