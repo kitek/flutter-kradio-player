@@ -20,6 +20,8 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   effective_dart: ^1.2.0
+  network_image_mock: ^1.0.0
+  mockito: ^4.1.1
 
 flutter:
   uses-material-design: true
