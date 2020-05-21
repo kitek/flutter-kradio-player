@@ -64,6 +64,7 @@ class PlayerBar extends StatelessWidget {
           Expanded(
             child: Text(
               stationName,
+              textDirection: TextDirection.ltr,
               style: const TextStyle(
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
@@ -71,8 +72,8 @@ class PlayerBar extends StatelessWidget {
               ),
             ),
           ),
-          InkWell(
-            onTap: () => BlocProvider.of<StationsBloc>(context)
+          FlatButton(
+            onPressed: () => BlocProvider.of<StationsBloc>(context)
                 .add(StationsTogglePlayback()),
             child: _playbackWidget,
           )
