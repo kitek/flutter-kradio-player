@@ -1,0 +1,69 @@
+name: Build and release app to testers
+on:
+  push:
+    branches: [ develop ]
+
+jobs:
+  build-release-android:
+    name: Build and release Android app
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+      - name: Read version name from file
+        id: versionName
+        uses: christian-draeger/read-properties@1.0.1
+        with:
+          path: ./version-name.properties
+          property: 'versionName'
+      - name: Print app versions
+        run: |
+          echo "versionName: ${{ steps.versionName.outputs.value }}"
+          echo "versionCode: ${GITHUB_RUN_NUMBER}"
+      - name: Install Flutter
+        uses: subosito/flutter-action@v1
+        with:
+          channel: 'beta'
+      - name: Get packages in a Flutter project
+        run: flutter pub get
+      - name: Install Firebase CLI
+        run: |
+          cd ${GITHUB_WORKSPACE}/android
+          if [ ! -f ./firebase ] ; then
+            curl -o ./firebase -L --progress-bar https://firebase.tools/bin/linux/latest
+            chmod +x ./firebase
+          fi
+          echo "Firebase CLI version: $(./firebase --version)"
+      - name: Create google service file
+        shell: bash
+        env:
+          FILE: ${{ secrets.ANDROID_GOOGLE_SERVICES_FILE }}
+        run: |
+          printf "%s" "$FILE" > "${GITHUB_WORKSPACE}/android/app/google-services.base64.json"
+          base64 --decode "${GITHUB_WORKSPACE}/android/app/google-services.base64.json" > "${GITHUB_WORKSPACE}/android/app/google-services.json"
+      - name: Create keystore file
+        shell: bash
+        env:
+          KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_FILE }}
+        run: |
+          mkdir -p "${GITHUB_WORKSPACE}/android/.signing"
+          printf "%s" "$KEYSTORE" > "${GITHUB_WORKSPACE}/android/.signing/release.base64.jks"
+          base64 --decode "${GITHUB_WORKSPACE}/android/.signing/release.base64.jks" > "${GITHUB_WORKSPACE}/android/.signing/release.jks"
+      - name: Build flutter Android APK
+        env:
+          ANDROID_KEYSTORE_ALIAS: ${{ secrets.ANDROID_KEYSTORE_ALIAS }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          flutter build apk --build-name=${{ steps.versionName.outputs.value }} --build-number=${GITHUB_RUN_NUMBER}
+      - name: Release Android Test App
+        uses: maierj/fastlane-action@v1.4.0
+        env:
+          LC_ALL: en_US.UTF-8
+          LANG: en_US.UTF-8
+          FIREBASE_APP_ID: ${{ secrets.ANDROID_FIREBASE_APP_ID }}
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          BUNDLE_GEMFILE: '${{ env.GITHUB_WORKSPACE }}/android/Gemfile'
+        with:
+          subdirectory: 'android'
+          bundle-install-path: 'vendor/bundle'
+          lane: 'releaseTest'

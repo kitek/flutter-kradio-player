@@ -1,0 +1,26 @@
+opt_out_usage
+fastlane_version "2.148.1"
+default_platform(:android)
+
+platform :android do
+  desc "Submit APK to Firebase App Distribution"
+  lane :releaseTest do
+    ensure_env_vars(env_vars: ['FIREBASE_APP_ID', 'FIREBASE_TOKEN'])
+
+    firebase_app_distribution(
+        app: ENV['FIREBASE_APP_ID'],
+        apk_path: '../build/app/outputs/apk/release/app-release.apk',
+        groups: 'qa-android-team',
+        firebase_cli_path: './firebase',
+        release_notes: getLastCommitMessage()
+    )
+
+  end
+end
+
+def getLastCommitMessage()
+    logCmd = 'git log -1 --pretty=%B | cat'
+    logs = `#{logCmd}`.strip
+
+    return logs
+end

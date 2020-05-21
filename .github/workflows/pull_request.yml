@@ -14,8 +14,6 @@ jobs:
         uses: subosito/flutter-action@v1
         with:
           channel: 'beta'
-      - name: Disable Flutter SDK anonymously reports
-        run: flutter config --no-analytics
       - name: Get packages in a Flutter project
         run: flutter pub get
       - name: Run lint
@@ -36,8 +34,6 @@ jobs:
         uses: subosito/flutter-action@v1
         with:
           channel: 'beta'
-      - name: Disable Flutter SDK anonymously reports
-        run: flutter config --no-analytics
       - name: Get packages in a Flutter project
         run: flutter pub get
       - name: Run Unit tests
