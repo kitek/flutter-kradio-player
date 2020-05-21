@@ -13,7 +13,7 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v1
         with:
-          channel: 'stable'
+          channel: 'beta'
       - name: Disable Flutter SDK anonymously reports
         run: flutter config --no-analytics
       - name: Get packages in a Flutter project
@@ -25,3 +25,22 @@ jobs:
         with:
           check_name: 'Check code style'
           commit_sha: ${{ github.event.pull_request.head.sha }}
+
+  tests:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+      - name: Install Flutter
+        uses: subosito/flutter-action@v1
+        with:
+          channel: 'beta'
+      - name: Disable Flutter SDK anonymously reports
+        run: flutter config --no-analytics
+      - name: Get packages in a Flutter project
+        run: flutter pub get
+      - name: Run Unit tests
+        run: flutter test test/unit
+      - name: Run Widget tests
+        run: flutter test test/widget
