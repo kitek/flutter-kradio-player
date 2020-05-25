@@ -1,0 +1,36 @@
+/**
+ * To signing application required are:
+ * - keys located in `.signing` directory
+ * - property file with password in `.signing/key.properties` or env variables, see details below:
+ */
+def props = getProps('.signing/key.properties')
+def releaseKeyPath = '.signing/release.jks'
+
+project.ext.signing = [
+        release: [
+                alias   : getConfig('ANDROID_KEYSTORE_ALIAS', 'release.alias', props),
+                password: getConfig('ANDROID_KEYSTORE_PASSWORD', 'release.password', props),
+                file    : rootProject.file(releaseKeyPath)
+        ]
+]
+
+def getProps(filePath) {
+    def props = new Properties()
+    def propsFile = rootProject.file(filePath)
+    if (propsFile.exists()) {
+        propsFile.withReader('UTF-8') { reader ->
+            props.load(reader)
+        }
+    }
+
+    return props
+}
+
+def getConfig(envName, propName, props) {
+    def value = System.getenv(envName)
+    if (value == null) {
+        value = props.getProperty(propName)
+    }
+
+    return value
+}
