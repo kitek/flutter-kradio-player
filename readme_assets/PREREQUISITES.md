@@ -103,4 +103,10 @@ Contains keystore alias value.
 
 Contains keystore password value.
 
+**ANDROID_RELEASE_PRIVATE_FILE**
+
+Contains base64 encoded private key file.
+You should create this file by your own - [more info](https://docs.fastlane.tools/actions/upload_to_play_store/#setup).
+During the release process, this file is recreated in the `.signing/release-private-key.json` path.
+
 ### iOS

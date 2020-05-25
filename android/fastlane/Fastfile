@@ -16,6 +16,22 @@ platform :android do
     )
 
   end
+
+  desc "Submit APK to Google Play Internal Track"
+  lane :releaseProduction do
+    supply(
+        track: 'internal',
+        track_promote_to: 'internal',
+        aab: '../build/app/outputs/bundle/release/app-release.aab',
+        skip_upload_aab: false,
+        skip_upload_apk: true,
+        skip_upload_metadata: true,
+        skip_upload_images: true,
+        skip_upload_screenshots: true,
+        skip_upload_changelogs: true,
+    )
+  end
+
 end
 
 def getLastCommitMessage()
