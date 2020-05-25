@@ -1,0 +1,12 @@
+name: 'Install firebase CLI'
+description: 'Download and install firebase CLI tool.'
+inputs:
+  destination:
+    description: "Destination directory."
+    required: true
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
+branding:
+  icon: 'bell'
+  color: 'blue'

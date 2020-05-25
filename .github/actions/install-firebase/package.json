@@ -1,0 +1,28 @@
+{
+  "name": "install-firebase",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Install firebase tool CLI.",
+  "main": "src/index.js",
+  "dependencies": {
+    "@actions/core": "^1.2.3",
+    "@actions/exec": "^1.0.3",
+    "@actions/tool-cache": "^1.5.5"
+  },
+  "devDependencies": {
+    "@zeit/ncc": "^0.22.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kitek/flutter-kradio-player/.github/actions/install-firebase"
+  },
+  "scripts": {
+    "build": "ncc build src/index.js"
+  },
+  "keywords": [
+    "firebase",
+    "cli"
+  ],
+  "author": "Marcin Kitowicz <marcin.kitowicz@gmail.com>",
+  "license": "MIT"
+}
