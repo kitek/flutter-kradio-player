@@ -62,7 +62,6 @@ jobs:
           LANG: en_US.UTF-8
           FIREBASE_APP_ID: ${{ secrets.ANDROID_FIREBASE_APP_ID }}
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-          BUNDLE_GEMFILE: '${{ env.GITHUB_WORKSPACE }}/android/Gemfile'
         with:
           subdirectory: 'android'
           bundle-install-path: 'vendor/bundle'
