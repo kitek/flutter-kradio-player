@@ -1,0 +1,42 @@
+opt_out_usage
+fastlane_version "2.148.1"
+default_platform(:android)
+
+platform :android do
+  desc "Submit APK to Firebase App Distribution"
+  lane :releaseTest do
+    ensure_env_vars(env_vars: ['FIREBASE_APP_ID', 'FIREBASE_TOKEN'])
+
+    firebase_app_distribution(
+        app: ENV['FIREBASE_APP_ID'],
+        apk_path: '../build/app/outputs/apk/release/app-release.apk',
+        groups: 'qa-android-team',
+        firebase_cli_path: './firebase',
+        release_notes: getLastCommitMessage()
+    )
+
+  end
+
+  desc "Submit APK to Google Play Internal Track"
+  lane :releaseProduction do
+    supply(
+        track: 'internal',
+        track_promote_to: 'internal',
+        aab: '../build/app/outputs/bundle/release/app-release.aab',
+        skip_upload_aab: false,
+        skip_upload_apk: true,
+        skip_upload_metadata: true,
+        skip_upload_images: true,
+        skip_upload_screenshots: true,
+        skip_upload_changelogs: true,
+    )
+  end
+
+end
+
+def getLastCommitMessage()
+    logCmd = 'git log -1 --pretty=%B | cat'
+    logs = `#{logCmd}`.strip
+
+    return logs
+end

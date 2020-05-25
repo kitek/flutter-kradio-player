@@ -1,0 +1,2 @@
+json_key_file(".signing/release-private-key.json")
+package_name("pl.kitek.kradioplayer")

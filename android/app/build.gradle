@@ -24,6 +24,8 @@ if (flutterVersionName == null) {
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+apply plugin: 'com.google.gms.google-services'
+apply from: "../signing.gradle"
 
 android {
     compileSdkVersion 28
@@ -37,19 +39,28 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "pl.kitek.kradioplayer"
         minSdkVersion 16
         targetSdkVersion 28
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+        resConfigs "en", "pl"
+    }
+
+    signingConfigs {
+        release {
+            keyAlias project.signing.release.alias
+            keyPassword project.signing.release.password
+            storeFile project.signing.release.file
+            storePassword project.signing.release.password
+        }
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig signingConfigs.debug
+            debuggable false
+            minifyEnabled true
+            signingConfig signingConfigs.release
         }
     }
 }
@@ -60,4 +71,5 @@ flutter {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'com.google.firebase:firebase-analytics:17.4.2'
 }
