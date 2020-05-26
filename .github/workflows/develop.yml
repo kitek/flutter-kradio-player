@@ -90,11 +90,10 @@ jobs:
         run: |
           printf "%s" "$KEYSTORE" > "${GITHUB_WORKSPACE}/.firebaserc.base64"
           base64 --decode "${GITHUB_WORKSPACE}/.firebaserc.base64" > "${GITHUB_WORKSPACE}/.firebaserc"
-      - name: Enable Flutter web support
-        shell: bash
-        run: flutter config –enable-web
       - name: Build Test Web app
         shell: bash
+        env:
+          FLUTTER_WEB: 'true'
         run: flutter build web
       - name: Deploy Test Web app
         shell: bash
