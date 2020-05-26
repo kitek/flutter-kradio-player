@@ -7,7 +7,7 @@ import 'model/station.dart';
 /// API HTTP Client.
 class ApiClient {
   final http.Client _httpClient;
-  static const _baseUrl = 'https://k-radio-player.firebaseio.com/';
+  static const _baseUrl = 'https://k-radio-player.firebaseio.com';
 
   /// Requires [httpClient].
   ApiClient({@required http.Client httpClient})
