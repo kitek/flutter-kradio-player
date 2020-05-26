@@ -49,8 +49,7 @@ jobs:
         env:
           ANDROID_KEYSTORE_ALIAS: ${{ secrets.ANDROID_KEYSTORE_ALIAS }}
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-        run: |
-          flutter build apk --build-name=${{ steps.versionName.outputs.value }} --build-number=${GITHUB_RUN_NUMBER}
+        run: flutter build apk --build-name=${{ steps.versionName.outputs.value }} --build-number=${GITHUB_RUN_NUMBER}
       - name: Release Android Test App
         uses: maierj/fastlane-action@v1.4.0
         env:
@@ -62,3 +61,43 @@ jobs:
           subdirectory: 'android'
           bundle-install-path: 'vendor/bundle'
           lane: 'releaseTest'
+
+  build-release-test-web:
+    name: Build and release Test Web app
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+      - name: Install firebase
+        uses: ./.github/actions/install-firebase
+      - name: Install Flutter
+        uses: subosito/flutter-action@v1
+        with:
+          channel: 'beta'
+      - name: Get packages in a Flutter project
+        run: flutter pub get
+      - name: Restore firebase.json file
+        shell: bash
+        env:
+          KEYSTORE: ${{ secrets.WEB_FIREBASE_JSON }}
+        run: |
+          printf "%s" "$KEYSTORE" > "${GITHUB_WORKSPACE}/firebase.base64.json"
+          base64 --decode "${GITHUB_WORKSPACE}/firebase.base64.json" > "${GITHUB_WORKSPACE}/firebase.json"
+      - name: Restore .firebaserc file
+        shell: bash
+        env:
+          KEYSTORE: ${{ secrets.WEB_FIREBASERC_JSON }}
+        run: |
+          printf "%s" "$KEYSTORE" > "${GITHUB_WORKSPACE}/.firebaserc.base64"
+          base64 --decode "${GITHUB_WORKSPACE}/.firebaserc.base64" > "${GITHUB_WORKSPACE}/.firebaserc"
+      - name: Enable Flutter web support
+        shell: bash
+        run: flutter config –enable-web
+      - name: Build Test Web app
+        shell: bash
+        run: flutter build web
+      - name: Deploy Test Web app
+        shell: bash
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        run: ./firebase deploy --only hosting:test-app
