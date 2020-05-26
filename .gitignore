@@ -44,3 +44,6 @@ app.*.map.json
 
 # act variables & secrets
 .env
+
+# Firebase hosting deployment
+.firebase
