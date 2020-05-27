@@ -53,6 +53,8 @@ class StationsBloc extends Bloc<StationsEvent, StationsState> {
   Stream<StationsState> _changeStation(StationsSelect event) async* {
     if (_selectedStation == event.selectedStation) return;
 
+    await _gracefullyStopPlayer();
+
     _selectedStation = event.selectedStation;
     _playbackStatus = PlaybackStatus.buffering;
     yield _createLoadedState();
@@ -60,7 +62,9 @@ class StationsBloc extends Bloc<StationsEvent, StationsState> {
     _subscribeToStream();
 
     _isPendingPlay = true;
-    await _player.setUrl(event.selectedStation.streamUrl);
+    await _player
+        .setUrl(event.selectedStation.streamUrl)
+        .catchError((e) => print('Error! so sad :('));
   }
 
   StationsLoaded _createLoadedState() {
@@ -87,10 +91,8 @@ class StationsBloc extends Bloc<StationsEvent, StationsState> {
           add(PlaybackStatusUpdate(status: PlaybackStatus.playing));
         } else if (isPaused) {
           add(PlaybackStatusUpdate(status: PlaybackStatus.paused));
-          if(_isPendingPlay) {
-            _isPendingPlay = false;
-            _playbackStatus = PlaybackStatus.playing;
-            _player.play();
+          if (_isPendingPlay) {
+            _resumePlay();
           }
         }
       }, onError: (_) {
@@ -136,5 +138,12 @@ class StationsBloc extends Bloc<StationsEvent, StationsState> {
     try {
       await _player.stop();
     } on Exception catch (_) {}
+  }
+
+  void _resumePlay() {
+    _isPendingPlay = false;
+    _playbackStatus = PlaybackStatus.playing;
+    _player.play();
+    add(PlaybackStatusUpdate(status: PlaybackStatus.playing));
   }
 }
