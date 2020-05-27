@@ -14,6 +14,7 @@ class StationsBloc extends Bloc<StationsEvent, StationsState> {
   final StationRepository _repository;
   final _player = AudioPlayer();
 
+  bool _isPendingPlay = false;
   List<Station> _stations = [];
   Station _selectedStation;
   PlaybackStatus _playbackStatus = PlaybackStatus.buffering;
@@ -50,14 +51,16 @@ class StationsBloc extends Bloc<StationsEvent, StationsState> {
   }
 
   Stream<StationsState> _changeStation(StationsSelect event) async* {
+    if (_selectedStation == event.selectedStation) return;
+
     _selectedStation = event.selectedStation;
     _playbackStatus = PlaybackStatus.buffering;
     yield _createLoadedState();
 
     _subscribeToStream();
 
+    _isPendingPlay = true;
     await _player.setUrl(event.selectedStation.streamUrl);
-    _player.play();
   }
 
   StationsLoaded _createLoadedState() {
@@ -80,11 +83,18 @@ class StationsBloc extends Bloc<StationsEvent, StationsState> {
         if (event.state == AudioPlaybackState.connecting || isBuffering) {
           add(PlaybackStatusUpdate(status: PlaybackStatus.buffering));
         } else if (event.state == AudioPlaybackState.playing) {
+          _isPendingPlay = false;
           add(PlaybackStatusUpdate(status: PlaybackStatus.playing));
         } else if (isPaused) {
           add(PlaybackStatusUpdate(status: PlaybackStatus.paused));
+          if(_isPendingPlay) {
+            _isPendingPlay = false;
+            _playbackStatus = PlaybackStatus.playing;
+            _player.play();
+          }
         }
       }, onError: (_) {
+        _isPendingPlay = false;
         add(PlaybackStatusUpdate(status: PlaybackStatus.error));
       });
     }
