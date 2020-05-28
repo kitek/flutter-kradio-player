@@ -77,19 +77,15 @@ jobs:
       - name: Get packages in a Flutter project
         run: flutter pub get
       - name: Restore firebase.json file
-        shell: bash
-        env:
-          KEYSTORE: ${{ secrets.WEB_FIREBASE_JSON }}
-        run: |
-          printf "%s" "$KEYSTORE" > "${GITHUB_WORKSPACE}/firebase.base64.json"
-          base64 --decode "${GITHUB_WORKSPACE}/firebase.base64.json" > "${GITHUB_WORKSPACE}/firebase.json"
+        uses: kitek/decode-base64-into-file-action@1.0
+        with:
+          encoded-value: ${{ secrets.WEB_FIREBASE_JSON }}
+          destination-file: firebase.json
       - name: Restore .firebaserc file
-        shell: bash
-        env:
-          KEYSTORE: ${{ secrets.WEB_FIREBASERC_JSON }}
-        run: |
-          printf "%s" "$KEYSTORE" > "${GITHUB_WORKSPACE}/.firebaserc.base64"
-          base64 --decode "${GITHUB_WORKSPACE}/.firebaserc.base64" > "${GITHUB_WORKSPACE}/.firebaserc"
+        uses: kitek/decode-base64-into-file-action@1.0
+        with:
+          encoded-value: ${{ secrets.WEB_FIREBASERC_JSON }}
+          destination-file: .firebaserc
       - name: Build Test Web app
         shell: bash
         env:
