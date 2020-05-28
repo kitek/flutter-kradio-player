@@ -30,21 +30,16 @@ jobs:
         uses: ./.github/actions/install-firebase
         with:
           destination: 'android'
-      - name: Create google service file
-        shell: bash
-        env:
-          FILE: ${{ secrets.ANDROID_GOOGLE_SERVICES_FILE }}
-        run: |
-          printf "%s" "$FILE" > "${GITHUB_WORKSPACE}/android/app/google-services.base64.json"
-          base64 --decode "${GITHUB_WORKSPACE}/android/app/google-services.base64.json" > "${GITHUB_WORKSPACE}/android/app/google-services.json"
-      - name: Create keystore file
-        shell: bash
-        env:
-          KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_FILE }}
-        run: |
-          mkdir -p "${GITHUB_WORKSPACE}/android/.signing"
-          printf "%s" "$KEYSTORE" > "${GITHUB_WORKSPACE}/android/.signing/release.base64.jks"
-          base64 --decode "${GITHUB_WORKSPACE}/android/.signing/release.base64.jks" > "${GITHUB_WORKSPACE}/android/.signing/release.jks"
+      - name: Restore google-services.json file
+        uses: kitek/decode-base64-into-file-action@1.0
+        with:
+          encoded-value: ${{ secrets.ANDROID_GOOGLE_SERVICES_FILE }}
+          destination-file: android/app/google-services.json
+      - name: Restore android keystore file
+        uses: kitek/decode-base64-into-file-action@1.0
+        with:
+          encoded-value: ${{ secrets.ANDROID_KEYSTORE_FILE }}
+          destination-file: android/.signing/release.jks
       - name: Build flutter Android APK
         env:
           ANDROID_KEYSTORE_ALIAS: ${{ secrets.ANDROID_KEYSTORE_ALIAS }}
