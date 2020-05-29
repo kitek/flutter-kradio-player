@@ -63,6 +63,27 @@ android {
             signingConfig signingConfigs.release
         }
     }
+
+    flavorDimensions "type"
+
+    productFlavors {
+        dev {
+            dimension "type"
+            applicationId "pl.kitek.kradioplayer.dev"
+            resValue "string", "app_name", "kRadio Player Dev"
+            signingConfig signingConfigs.debug
+        }
+        internaltest {
+            dimension "type"
+            applicationId "pl.kitek.kradioplayer.internaltest"
+            resValue "string", "app_name", "kRadio Player Test"
+        }
+        production {
+            dimension "type"
+            applicationId "pl.kitek.kradioplayer"
+            resValue "string", "app_name", "kRadio Player"
+        }
+    }
 }
 
 flutter {
