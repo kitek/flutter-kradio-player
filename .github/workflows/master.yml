@@ -61,3 +61,38 @@ jobs:
           subdirectory: 'android'
           bundle-install-path: 'vendor/bundle'
           lane: 'releaseProduction'
+
+  build-release-production-web:
+    name: Build and release Production Web app
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+      - name: Install firebase
+        uses: ./.github/actions/install-firebase
+      - name: Install Flutter
+        uses: subosito/flutter-action@v1
+        with:
+          channel: 'beta'
+      - name: Get packages in a Flutter project
+        run: flutter pub get
+      - name: Restore firebase.json file
+        uses: kitek/decode-base64-into-file-action@1.0
+        with:
+          encoded-value: ${{ secrets.WEB_FIREBASE_JSON }}
+          destination-file: firebase.json
+      - name: Restore .firebaserc file
+        uses: kitek/decode-base64-into-file-action@1.0
+        with:
+          encoded-value: ${{ secrets.WEB_FIREBASERC_JSON }}
+          destination-file: .firebaserc
+      - name: Build Test Web app
+        shell: bash
+        env:
+          FLUTTER_WEB: 'true'
+        run: flutter build web
+      - name: Deploy Test Web app
+        shell: bash
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        run: ./firebase deploy --only hosting:app
