@@ -44,7 +44,7 @@ jobs:
         env:
           ANDROID_KEYSTORE_ALIAS: ${{ secrets.ANDROID_KEYSTORE_ALIAS }}
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-        run: flutter build apk --build-name=${{ steps.versionName.outputs.value }} --build-number=${GITHUB_RUN_NUMBER}
+        run: flutter build apk --flavor internaltest --build-name=${{ steps.versionName.outputs.value }} --build-number=${GITHUB_RUN_NUMBER}
       - name: Release Android Test App
         uses: maierj/fastlane-action@v1.4.0
         env:
