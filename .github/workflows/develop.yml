@@ -30,27 +30,21 @@ jobs:
         uses: ./.github/actions/install-firebase
         with:
           destination: 'android'
-      - name: Create google service file
-        shell: bash
-        env:
-          FILE: ${{ secrets.ANDROID_GOOGLE_SERVICES_FILE }}
-        run: |
-          printf "%s" "$FILE" > "${GITHUB_WORKSPACE}/android/app/google-services.base64.json"
-          base64 --decode "${GITHUB_WORKSPACE}/android/app/google-services.base64.json" > "${GITHUB_WORKSPACE}/android/app/google-services.json"
-      - name: Create keystore file
-        shell: bash
-        env:
-          KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_FILE }}
-        run: |
-          mkdir -p "${GITHUB_WORKSPACE}/android/.signing"
-          printf "%s" "$KEYSTORE" > "${GITHUB_WORKSPACE}/android/.signing/release.base64.jks"
-          base64 --decode "${GITHUB_WORKSPACE}/android/.signing/release.base64.jks" > "${GITHUB_WORKSPACE}/android/.signing/release.jks"
+      - name: Restore google-services.json file
+        uses: kitek/decode-base64-into-file-action@1.0
+        with:
+          encoded-value: ${{ secrets.ANDROID_GOOGLE_SERVICES_FILE }}
+          destination-file: android/app/google-services.json
+      - name: Restore android keystore file
+        uses: kitek/decode-base64-into-file-action@1.0
+        with:
+          encoded-value: ${{ secrets.ANDROID_KEYSTORE_FILE }}
+          destination-file: android/.signing/release.jks
       - name: Build flutter Android APK
         env:
           ANDROID_KEYSTORE_ALIAS: ${{ secrets.ANDROID_KEYSTORE_ALIAS }}
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-        run: |
-          flutter build apk --build-name=${{ steps.versionName.outputs.value }} --build-number=${GITHUB_RUN_NUMBER}
+        run: flutter build apk --flavor internaltest --build-name=${{ steps.versionName.outputs.value }} --build-number=${GITHUB_RUN_NUMBER}
       - name: Release Android Test App
         uses: maierj/fastlane-action@v1.4.0
         env:
@@ -62,3 +56,38 @@ jobs:
           subdirectory: 'android'
           bundle-install-path: 'vendor/bundle'
           lane: 'releaseTest'
+
+  build-release-test-web:
+    name: Build and release Test Web app
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+      - name: Install firebase
+        uses: ./.github/actions/install-firebase
+      - name: Install Flutter
+        uses: subosito/flutter-action@v1
+        with:
+          channel: 'beta'
+      - name: Get packages in a Flutter project
+        run: flutter pub get
+      - name: Restore firebase.json file
+        uses: kitek/decode-base64-into-file-action@1.0
+        with:
+          encoded-value: ${{ secrets.WEB_FIREBASE_JSON }}
+          destination-file: firebase.json
+      - name: Restore .firebaserc file
+        uses: kitek/decode-base64-into-file-action@1.0
+        with:
+          encoded-value: ${{ secrets.WEB_FIREBASERC_JSON }}
+          destination-file: .firebaserc
+      - name: Build Test Web app
+        shell: bash
+        env:
+          FLUTTER_WEB: 'true'
+        run: flutter build web
+      - name: Deploy Test Web app
+        shell: bash
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        run: ./firebase deploy --only hosting:test-app

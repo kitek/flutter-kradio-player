@@ -14,6 +14,7 @@ class StationsBloc extends Bloc<StationsEvent, StationsState> {
   final StationRepository _repository;
   final _player = AudioPlayer();
 
+  bool _isPendingPlay = false;
   List<Station> _stations = [];
   Station _selectedStation;
   PlaybackStatus _playbackStatus = PlaybackStatus.buffering;
@@ -50,14 +51,20 @@ class StationsBloc extends Bloc<StationsEvent, StationsState> {
   }
 
   Stream<StationsState> _changeStation(StationsSelect event) async* {
+    if (_selectedStation == event.selectedStation) return;
+
+    await _gracefullyStopPlayer();
+
     _selectedStation = event.selectedStation;
     _playbackStatus = PlaybackStatus.buffering;
     yield _createLoadedState();
 
     _subscribeToStream();
 
-    await _player.setUrl(event.selectedStation.streamUrl);
-    _player.play();
+    _isPendingPlay = true;
+    await _player
+        .setUrl(event.selectedStation.streamUrl)
+        .catchError((e) => print('Error! so sad :('));
   }
 
   StationsLoaded _createLoadedState() {
@@ -80,11 +87,16 @@ class StationsBloc extends Bloc<StationsEvent, StationsState> {
         if (event.state == AudioPlaybackState.connecting || isBuffering) {
           add(PlaybackStatusUpdate(status: PlaybackStatus.buffering));
         } else if (event.state == AudioPlaybackState.playing) {
+          _isPendingPlay = false;
           add(PlaybackStatusUpdate(status: PlaybackStatus.playing));
         } else if (isPaused) {
           add(PlaybackStatusUpdate(status: PlaybackStatus.paused));
+          if (_isPendingPlay) {
+            _resumePlay();
+          }
         }
       }, onError: (_) {
+        _isPendingPlay = false;
         add(PlaybackStatusUpdate(status: PlaybackStatus.error));
       });
     }
@@ -126,5 +138,12 @@ class StationsBloc extends Bloc<StationsEvent, StationsState> {
     try {
       await _player.stop();
     } on Exception catch (_) {}
+  }
+
+  void _resumePlay() {
+    _isPendingPlay = false;
+    _playbackStatus = PlaybackStatus.playing;
+    _player.play();
+    add(PlaybackStatusUpdate(status: PlaybackStatus.playing));
   }
 }

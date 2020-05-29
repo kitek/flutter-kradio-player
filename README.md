@@ -16,14 +16,17 @@ Another Awesome Online Radio Player.
 5. Register apps with Firebase: [android](https://firebase.google.com/docs/android/setup#register-app) and [iOS](https://firebase.google.com/docs/ios/setup#register-app)
 6. Add Firebase configuration files: [android](https://firebase.google.com/docs/android/setup#add-config-file) and [iOS](https://firebase.google.com/docs/ios/setup#add-config-file)
 7. To download project dependencies execute: `flutter pub get`
-8. Run project on Simulator or Android device
+8. Configure build flavor in your editor or run from command line `flutter run --flavor <name>`, available flavors:
+- dev (local build)
+- internaltest (used for Firebase App Distribution)
+- production (used for Google Play)
+9. Run project on Simulator or Android device
 
 ## Github actions: checks and deployment
 
 - [Prerequisites](readme_assets/PREREQUISITES.md)
 - Pull request checks
 - Tests apps deployment
-- 
 
 ## Architecture, libraries and tools
 
