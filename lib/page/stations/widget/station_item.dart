@@ -12,7 +12,7 @@ class StationItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(left: 16.0, right: 16.0),
+      padding: EdgeInsets.only(left: 16.0, right: 16.0, top: 8.0, bottom: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
