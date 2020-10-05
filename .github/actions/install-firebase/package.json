@@ -5,7 +5,7 @@
   "description": "Install firebase tool CLI.",
   "main": "src/index.js",
   "dependencies": {
-    "@actions/core": "^1.2.3",
+    "@actions/core": "^1.2.6",
     "@actions/exec": "^1.0.3",
     "@actions/tool-cache": "^1.5.5"
   },
