@@ -8,11 +8,15 @@ import 'repository/station_repository.dart';
 import 'simple_bloc_delegate.dart';
 
 void main() {
+  int _id = null;
+  
   BlocSupervisor.delegate = SimpleBlocDelegate();
 
   final repository = StationRepository(
     apiClient: ApiClient(httpClient: http.Client()),
   );
+  
+  print("Awesome print!");
 
   runApp(App(repository: repository));
 }
