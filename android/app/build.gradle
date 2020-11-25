@@ -41,7 +41,7 @@ android {
     defaultConfig {
         applicationId "pl.kitek.kradioplayer"
         minSdkVersion 16
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         resConfigs "en", "pl"
